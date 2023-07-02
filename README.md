@@ -1,8 +1,7 @@
 # trino-quickstart 
 
 ## Goal
-Goal of this project is to quickly setup local persistent Trino environment. 
-Components:
+Goal of this project is to quickly setup local, persistent Trino environment containing:
 - Postgres database as storage engine for Hive Metastore
 - Hive Metastore
 - Trino with two catalogs using local file system:
