@@ -1,0 +1,38 @@
+services:
+  metastore_db:
+    image: postgres:15
+    hostname: metastore_db
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: hive
+      POSTGRES_PASSWORD: hive
+      POSTGRES_DB: metastore
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - ./volumes/metastore_db:/var/lib/postgresql/data
+
+  metastore:
+    image: apache/hive:4.0.0-alpha-2
+    hostname: metastore
+    ports:
+      - 9083:9083
+    environment:
+      SERVICE_NAME: metastore
+      DB_DRIVER: postgres
+      SERVICE_OPTS: "-Djavax.jdo.option.ConnectionDriverName=org.postgresql.Driver -Djavax.jdo.option.ConnectionURL=jdbc:postgresql://metastore_db:5432/postgres -Djavax.jdo.option.ConnectionUserName=hive -Djavax.jdo.option.ConnectionPassword=hive"
+    volumes:
+      - ./volumes/hive:/opt/hive/data/warehouse
+    depends_on:
+      - metastore_db
+    restart: always
+
+  trino:
+    image: trinodb/trino:420
+    ports:
+      - 8080:8080
+    volumes:
+      - ./trino:/etc/trino:ro
+      - ./volumes/hive:/opt/hive/data/warehouse
+    depends_on:
+      - metastore
